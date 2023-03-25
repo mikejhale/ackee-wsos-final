@@ -12,13 +12,15 @@ import { AckeeWsosFinal } from '../target/types/ackee_wsos_final';
 
 describe('ackee-wsos-final', async () => {
   const professionalId = '475.' + (Math.floor(Math.random() * 90000) + 10000);
+  const certificationId = 'CERT' + (Math.floor(Math.random() * 90000) + 10000);
+  const certificationYear = 2024;
 
   // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const program = anchor.workspace.AckeeWsosFinal as Program<AckeeWsosFinal>;
 
-  const [professionalPda, bump] =
+  const [professionalPda, proBump] =
     await anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode('professional'),
@@ -28,20 +30,21 @@ describe('ackee-wsos-final', async () => {
       program.programId
     );
 
-  it('can create a professional', async () => {
-    // get PDA for bank
-    const [professionalPda, bump] =
-      await anchor.web3.PublicKey.findProgramAddressSync(
-        [
-          anchor.utils.bytes.utf8.encode('professional'),
-          anchor.utils.bytes.utf8.encode(professionalId),
-          provider.wallet.publicKey.toBuffer(),
-        ],
-        program.programId
-      );
+  const [certificationPda, certBump] =
+    await anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode('certification'),
+        anchor.utils.bytes.utf8.encode(certificationId),
+        new anchor.BN(certificationYear).toBuffer('le', 2),
+        provider.wallet.publicKey.toBuffer(),
+      ],
+      program.programId
+    );
 
+  console.log(certificationPda);
+  it('can create a professional', async () => {
     const tx = await program.methods
-      .addProfessional(professionalId, bump)
+      .addProfessional(professionalId, proBump)
       .accounts({
         professional: professionalPda,
         user: provider.wallet.publicKey,
@@ -54,20 +57,33 @@ describe('ackee-wsos-final', async () => {
   });
 
   it('can add a certification', async () => {
-    // get PDA for bank
-
-    // get pubkey for cert (temp)
-    const wallet = web3.Keypair.generate();
-
     const tx = await program.methods
-      .addProCert(wallet.publicKey)
+      .addCertification(certificationId, certificationYear, certBump)
       .accounts({
-        professional: professionalPda,
+        certification: certificationPda,
+        user: provider.wallet.publicKey,
+        systemProgram: web3.SystemProgram.programId,
       })
       .rpc();
 
-    let proAccount = await program.account.professional.fetch(professionalPda);
-    console.log(proAccount.certifications.length);
-    expect(proAccount.id).equals(professionalId);
+    let certAccount = await program.account.certification.fetch(
+      certificationPda
+    );
+    expect(certAccount.id).equals(certificationId);
+  });
+
+  it('can add certification to a professional', async () => {
+    const tx = await program.methods
+      .addProCert()
+      .accounts({
+        professional: professionalPda,
+        certification: certificationPda,
+      })
+      .rpc();
+
+    let certAccount = await program.account.certification.fetch(
+      certificationPda
+    );
+    expect(certAccount.id).equals(certificationId);
   });
 });

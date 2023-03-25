@@ -10,15 +10,29 @@ pub mod ackee_wsos_final {
     pub fn add_professional(ctx: Context<AddProfressional>, id: String, bump: u8) -> Result<()> {
         let pro = &mut ctx.accounts.professional;
         pro.id = id;
-        pro.bump = bump;
         pro.authority = *ctx.accounts.user.key;
+        pro.bump = bump;
         Ok(())
     }
 
-    // add certification to professional
-    pub fn add_pro_cert(ctx: Context<AddProCert>, certification: Pubkey) -> Result<()> {
+    // add professional
+    pub fn add_certification(
+        ctx: Context<AddCertification>,
+        id: String,
+        year: u16,
+        bump: u8,
+    ) -> Result<()> {
+        let cert = &mut ctx.accounts.certification;
+        cert.id = id;
+        cert.year = year;
+        cert.bump = bump;
+        Ok(())
+    }
+
+    //add certification to professional
+    pub fn add_pro_cert(ctx: Context<AddProCert>) -> Result<()> {
         let pro = &mut ctx.accounts.professional;
-        pro.certifications.push(certification);
+        pro.certifications.push(ctx.accounts.certification.key());
         Ok(())
     }
 }
@@ -37,6 +51,29 @@ pub struct AddProfressional<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+#[instruction(id: String, year: u16)]
+pub struct AddCertification<'info> {
+    #[account(init, payer = user, space = 256, seeds = [
+        b"certification",
+        id.as_bytes(),
+        year.to_le_bytes().as_ref(),
+        user.to_account_info().key.as_ref(),
+    ], bump)]
+    pub certification: Account<'info, Certification>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct AddProCert<'info> {
+    #[account(mut, has_one = authority)]
+    pub professional: Account<'info, Professional>,
+    pub certification: Account<'info, Certification>,
+    pub authority: Signer<'info>,
+}
+
 #[account]
 pub struct Professional {
     pub id: String,
@@ -45,9 +82,9 @@ pub struct Professional {
     pub bump: u8,
 }
 
-#[derive(Accounts)]
-pub struct AddProCert<'info> {
-    #[account(mut, has_one = authority)]
-    pub professional: Account<'info, Professional>,
-    pub authority: Signer<'info>,
+#[account]
+pub struct Certification {
+    pub id: String,
+    pub year: u16,
+    pub bump: u8,
 }
