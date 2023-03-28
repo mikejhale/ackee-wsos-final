@@ -41,7 +41,6 @@ describe('ackee-wsos-final', async () => {
       program.programId
     );
 
-  console.log(certificationPda);
   it('can create a professional', async () => {
     const tx = await program.methods
       .addProfessional(professionalId, proBump)
@@ -85,5 +84,15 @@ describe('ackee-wsos-final', async () => {
       certificationPda
     );
     expect(certAccount.id).equals(certificationId);
+  });
+
+  it('can retrieve accounts', async () => {
+    const certifications = await program.account.certification.all();
+    const professionals = await program.account.professional.all();
+
+    console.log(professionals[0].account.certifications);
+
+    expect(certifications.length).gte(1);
+    expect(professionals.length).gte(1);
   });
 });
