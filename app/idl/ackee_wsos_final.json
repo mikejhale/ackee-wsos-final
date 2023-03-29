@@ -95,6 +95,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "authority",
+            "type": "publicKey"
+          },
+          {
             "name": "id",
             "type": "string"
           },
@@ -103,10 +107,6 @@
             "type": {
               "vec": "publicKey"
             }
-          },
-          {
-            "name": "authority",
-            "type": "publicKey"
           },
           {
             "name": "bump",
@@ -120,6 +120,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "authority",
+            "type": "publicKey"
+          },
           {
             "name": "id",
             "type": "string"

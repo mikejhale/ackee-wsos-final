@@ -30,7 +30,9 @@ type ProCertProps = {
 
 const ProCerts = (props: ProCertProps) => {
   const [certifications, setCertifications] = useState<ProgramAccount[]>([]);
+  const [proCerts, setProCerts] = useState<string[]>([]);
   const [selectedCert, setSelectedCert] = useState('');
+  const [selectedCertID, setSelectedCertID] = useState('');
   const { connection } = useConnection();
   const wallet = useWallet();
 
@@ -53,18 +55,42 @@ const ProCerts = (props: ProCertProps) => {
   const program = new Program(idl_object, idl.metadata.address, provider);
 
   useEffect(() => {
-    program.account.certification.all().then((certs) => {
-      setCertifications(certs);
-    });
+    program.account.certification
+      .all([
+        {
+          memcmp: {
+            offset: 8,
+            bytes: provider.wallet.publicKey.toBase58(),
+          },
+        },
+      ])
+      .then((certs) => {
+        setCertifications(certs);
+      });
   }, []);
 
   const handleCertSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedCertID(event.target.options[event.target.selectedIndex].text);
     setSelectedCert(event.target.value);
   };
 
-  const handleAddCertification = (publicKey: BN) => {
-    console.log(publicKey.toString());
-    console.log('Adding certification...');
+  const handleAddCertification = async (publicKey: BN) => {
+    if (setSelectedCertID.length > 0 && selectedCert.length > 0) {
+      const tx = await program.methods
+        .addProCert()
+        .accounts({
+          professional: new PublicKey(publicKey),
+          certification: new PublicKey(selectedCert),
+        })
+        .rpc();
+
+      setProCerts([...proCerts, selectedCert]);
+      console.log(
+        'Certification ' + selectedCert + ' added to professional ' + publicKey
+      );
+    } else {
+      console.log('Need to select a Certification first.');
+    }
   };
 
   return (

@@ -41,7 +41,7 @@ export const CertificationForm: FC = () => {
     const provider = new AnchorProvider(
       connection,
       // @ts-ignore
-      wallet.wallet,
+      wallet,
       AnchorProvider.defaultOptions()
     );
 
@@ -51,9 +51,22 @@ export const CertificationForm: FC = () => {
   const provider = getProvider();
   const program = new Program(idl_object, idl.metadata.address, provider);
 
+  const certFilter = [
+    {
+      memcmp: {
+        offset: 8,
+        bytes: provider.wallet.publicKey.toBase58(),
+      },
+    },
+  ];
+
   useEffect(() => {
-    program.account.certification.all().then((certs) => {
+    program.account.certification.all(certFilter).then((certs) => {
       setCertifications(certs);
+
+      certs.map((c) => {
+        console.log(c);
+      });
     });
   }, []);
 
@@ -79,7 +92,17 @@ export const CertificationForm: FC = () => {
       })
       .rpc();
 
-    program.account.certification.all().then((certs) => {
+    console.log('pk', provider.wallet.publicKey);
+    const certFilter = [
+      {
+        memcmp: {
+          offset: 8,
+          bytes: provider.wallet.publicKey.toBase58(),
+        },
+      },
+    ];
+
+    program.account.certification.all(certFilter).then((certs) => {
       setCertifications(certs);
     });
     console.log('Account Created (Certification)', certificationPda.toString());

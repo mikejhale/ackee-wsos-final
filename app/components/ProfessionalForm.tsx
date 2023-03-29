@@ -9,7 +9,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { MOVIE_REVIEW_PROGRAM_ID } from '../utils/constants';
 import {
   Program,
   AnchorProvider,
@@ -46,10 +45,22 @@ export const ProfessionalForm: FC = () => {
   const provider = getProvider();
   const program = new Program(idl_object, idl.metadata.address, provider);
 
+  const proFilter = [
+    {
+      memcmp: {
+        offset: 8,
+        bytes: provider.wallet.publicKey.toBase58(),
+      },
+    },
+  ];
+
   useEffect(() => {
-    program.account.professional.all().then((pros) => {
+    program.account.professional.all(proFilter).then((pros) => {
       setProfessionals(pros);
-      console.log(pros);
+
+      pros.map((p) => {
+        console.log('Pro', p.account.id, p.account.authority.toString());
+      });
     });
   }, []);
 
@@ -74,7 +85,7 @@ export const ProfessionalForm: FC = () => {
       })
       .rpc();
 
-    program.account.professional.all().then((pros) => {
+    program.account.professional.all(proFilter).then((pros) => {
       setProfessionals(pros);
     });
     console.log('Account Created (Professional)', professionalPda.toString());
