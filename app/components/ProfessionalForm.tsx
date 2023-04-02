@@ -57,10 +57,6 @@ export const ProfessionalForm: FC = () => {
   useEffect(() => {
     program.account.professional.all(proFilter).then((pros) => {
       setProfessionals(pros);
-
-      pros.map((p) => {
-        console.log('Pro', p.account.id, p.account.authority.toString());
-      });
     });
   }, []);
 

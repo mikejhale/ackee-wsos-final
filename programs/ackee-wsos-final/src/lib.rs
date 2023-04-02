@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("HyLnqpmqVQz4wdWtM7idAFuNb5C8HEWEeoP9g4WV6nt5");
+declare_id!("9ivFLTnYaieHotAB1J6na8LPNKcH2fUA1GmmbDBuifdA");
 
 #[program]
 pub mod ackee_wsos_final {
@@ -9,8 +9,8 @@ pub mod ackee_wsos_final {
     // add professional
     pub fn add_professional(ctx: Context<AddProfressional>, id: String, bump: u8) -> Result<()> {
         let pro = &mut ctx.accounts.professional;
-        pro.id = id;
         pro.authority = *ctx.accounts.user.key;
+        pro.id = id;
         pro.bump = bump;
         Ok(())
     }
@@ -23,6 +23,7 @@ pub mod ackee_wsos_final {
         bump: u8,
     ) -> Result<()> {
         let cert = &mut ctx.accounts.certification;
+        cert.authority = *ctx.accounts.user.key;
         cert.id = id;
         cert.year = year;
         cert.bump = bump;
@@ -70,20 +71,22 @@ pub struct AddCertification<'info> {
 pub struct AddProCert<'info> {
     #[account(mut, has_one = authority)]
     pub professional: Account<'info, Professional>,
+    #[account(has_one = authority)]
     pub certification: Account<'info, Certification>,
     pub authority: Signer<'info>,
 }
 
 #[account]
 pub struct Professional {
+    pub authority: Pubkey,
     pub id: String,
     pub certifications: Vec<Pubkey>,
-    pub authority: Pubkey,
     pub bump: u8,
 }
 
 #[account]
 pub struct Certification {
+    pub authority: Pubkey,
     pub id: String,
     pub year: u16,
     pub bump: u8,

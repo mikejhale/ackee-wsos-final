@@ -93,18 +93,26 @@ const ProCerts = (props: ProCertProps) => {
     }
   };
 
+  const getCert = async (certKey: BN) => {
+    const cert = await program.account.certification.fetch(
+      new PublicKey(certKey)
+    );
+    return cert;
+  };
+
   return (
     <VStack>
       <Stack fontSize={24}>
-        {props.certifications.length ? (
-          <Text color='white'>
-            {props.certifications.length} certifications
-          </Text>
-        ) : (
-          <Text color='white' fontSize={16}>
-            No Certifications
-          </Text>
-        )}
+        {props.certifications.map((c) => {
+          const proCert = certifications.filter((pc) => {
+            return pc.publicKey.toString() == c.toString();
+          });
+          return (
+            <Text key={c.toString()} color='white' fontSize={14}>
+              {proCert[0]?.account.id} - {proCert[0]?.account.year}
+            </Text>
+          );
+        })}
       </Stack>
       <Spacer h={14} />
       <VStack fontSize={24}>

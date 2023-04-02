@@ -63,10 +63,6 @@ export const CertificationForm: FC = () => {
   useEffect(() => {
     program.account.certification.all(certFilter).then((certs) => {
       setCertifications(certs);
-
-      certs.map((c) => {
-        console.log(c);
-      });
     });
   }, []);
 
@@ -92,7 +88,6 @@ export const CertificationForm: FC = () => {
       })
       .rpc();
 
-    console.log('pk', provider.wallet.publicKey);
     const certFilter = [
       {
         memcmp: {
