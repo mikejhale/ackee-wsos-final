@@ -1,6 +1,5 @@
-import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react';
+import { HStack } from '@chakra-ui/react';
 import Link from 'next/link';
-import { FC } from 'react';
 
 export const Nav = () => {
   return (

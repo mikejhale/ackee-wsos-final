@@ -1,5 +1,4 @@
-import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react';
-import { FC } from 'react';
+import { Box, HStack, Stack, Text } from '@chakra-ui/react';
 
 type CertCardProps = {
   id: string;

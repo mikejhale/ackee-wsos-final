@@ -8,11 +8,7 @@ import {
   Input,
   Text,
 } from '@chakra-ui/react';
-import {
-  useAnchorWallet,
-  useConnection,
-  useWallet,
-} from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import {
   Program,
   AnchorProvider,

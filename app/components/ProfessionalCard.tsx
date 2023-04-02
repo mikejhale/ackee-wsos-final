@@ -1,5 +1,4 @@
 import { Box, HStack, Spacer, Stack, Text } from '@chakra-ui/react';
-import { FC } from 'react';
 import ProCerts from './ProCerts';
 import { BN } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';

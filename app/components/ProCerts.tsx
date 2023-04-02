@@ -1,6 +1,4 @@
 import {
-  Box,
-  HStack,
   VStack,
   Spacer,
   Button,
@@ -10,21 +8,14 @@ import {
   Link,
 } from '@chakra-ui/react';
 import React, { FC, useEffect, useState } from 'react';
-import {
-  Program,
-  AnchorProvider,
-  web3,
-  utils,
-  BN,
-  ProgramAccount,
-} from '@coral-xyz/anchor';
+import { Program, AnchorProvider, BN, ProgramAccount } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import NextLink from 'next/link';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import idl from '../idl/ackee_wsos_final.json';
 
 type ProCertProps = {
-  publicKey: BN;
+  publicKey: PublicKey;
   certifications: BN[];
 };
 
@@ -74,7 +65,7 @@ const ProCerts = (props: ProCertProps) => {
     setSelectedCert(event.target.value);
   };
 
-  const handleAddCertification = async (publicKey: BN) => {
+  const handleAddCertification = async (publicKey: PublicKey) => {
     if (setSelectedCertID.length > 0 && selectedCert.length > 0) {
       const tx = await program.methods
         .addProCert()
